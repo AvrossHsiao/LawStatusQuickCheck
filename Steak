@@ -1,0 +1,30 @@
+from bs4 import BeautifulSoup as bs
+import requests
+import xlsxwriter as xw
+
+list = ['http://db.lawbank.com.tw/FLAW/FLAWDAT01.aspx?lsid=FL000632', 
+'http://db.lawbank.com.tw/FLAW/FLAWDAT01.aspx?lsid=FL001351', 
+'http://db.lawbank.com.tw/FLAW/FLAWDAT01.aspx?lsid=FL001362', 
+'http://db.lawbank.com.tw/FLAW/FLAWDAT01.aspx?lsid=FL001424', 
+'http://db.lawbank.com.tw/FLAW/FLAWDAT01.aspx?lsid=FL001445']
+
+workbook = xw.Workbook('C:\\Users\\000\\Desktop\\excel.xlsx')
+worksheet = workbook.add_worksheet()
+bold = workbook.add_format({'bold': True})
+blue = workbook.add_format({'font_color': 'blue'})
+worksheet.write('A1', '法條名稱', bold)
+worksheet.write('B1', '最新立法動態時日', bold)
+
+row = 1
+col = 0
+for l in list:
+  r = requests.get(l)
+  soup = bs(r.content, "html.parser")
+  title = soup.td.get_text().split(" ")[12]
+  status = soup.pre.get_text()
+  status1 = status.split("總")[0].split("華")[1]
+  worksheet.write(row, col, title, blue)
+  worksheet.write(row, col + 1, status1)
+  row = row + 1
+  
+workbook.close()
